@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart'; // GoogleFonts 패키지 임포트
+import 'package:http/http.dart' as http; // http 패키지 임포트
 import 'reco.dart'; // RecoPage 임포트
 
 void main() {
@@ -12,13 +13,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'INNOVENTURES',
+      title: 'INNOVATORS',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
             seedColor: const Color.fromARGB(255, 255, 255, 255)),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'INNOVENTURES'),
+      home: const MyHomePage(title: 'INNOVATORS'),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -37,10 +38,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _textController = TextEditingController();
-  final TextEditingController _minSubscribersController =
-      TextEditingController();
-  final TextEditingController _maxSubscribersController =
-      TextEditingController();
+  int _selectedIndex = 0;
 
   void _showWarningDialog(String message) {
     showDialog(
@@ -62,13 +60,38 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Future<void> _sendTextToApi(String text) async {
+    final url = Uri.parse('https://rlaahrwhd.com/api');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: '{"text": "$text"}',
+    );
+
+    if (response.statusCode == 200) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const RecoPage()),
+      );
+    } else {
+      _showWarningDialog('API 요청에 실패했습니다.');
+    }
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    // 각 인덱스에 따라 다른 페이지로 이동하도록 설정할 수 있습니다.
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 255, 255, 255), // 배경 흰색으로 설정
         title: Text(
-          'INNOVENTURES', // 영문 제목
+          'INNOVATORS', // 영문 제목
           style: GoogleFonts.oleoScript(
             fontSize: 34, // 글씨 크기 조절
             fontWeight: FontWeight.bold, // 글씨 두껍게
@@ -83,55 +106,21 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _minSubscribersController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: '최소 구독자 수',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  const Text('~'),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      controller: _maxSubscribersController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: '최대 구독자 수',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
               child: TextField(
                 controller: _textController,
                 maxLines: 15, // 텍스트 입력 칸 높이 조절
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: '스타트업 아이템/서비스 내용',
+                  labelText: '텍스트 입력',
                 ),
               ),
             ),
             ElevatedButton(
               onPressed: () {
-                if (_minSubscribersController.text.isEmpty ||
-                    _maxSubscribersController.text.isEmpty) {
-                  _showWarningDialog('구독자 수를 입력해주세요.');
-                } else if (_textController.text.isEmpty) {
+                if (_textController.text.isEmpty) {
                   _showWarningDialog('텍스트를 입력해주세요.');
                 } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const RecoPage()),
-                  );
+                  _sendTextToApi(_textController.text);
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -143,6 +132,25 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: '홈',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: '검색',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: '프로필',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        onTap: _onItemTapped,
       ),
     );
   }
