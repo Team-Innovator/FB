@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart'; // GoogleFonts 패키지 임포트
+import 'reco.dart'; // RecoPage 임포트
 
 void main() {
   runApp(const MyApp());
@@ -35,6 +36,28 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final TextEditingController _textController = TextEditingController();
+
+  void _showWarningDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('경고'),
+          content: const Text('텍스트를 입력해주세요.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,7 +76,37 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[],
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                controller: _textController,
+                maxLines: 5, // 텍스트 입력 칸 높이 조절
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: '텍스트 입력',
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (_textController.text.isEmpty) {
+                  _showWarningDialog();
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const RecoPage()),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 50, vertical: 20), // 버튼 크기 조절
+              ),
+              child: const Text('매칭하기',
+                  style: TextStyle(fontSize: 20)), // 글씨 크기 조절
+            ),
+          ],
         ),
       ),
     );
