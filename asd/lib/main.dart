@@ -37,6 +37,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final TextEditingController _keywordController = TextEditingController();
   final TextEditingController _textController = TextEditingController();
   int _selectedIndex = 0;
 
@@ -60,12 +61,16 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<void> _sendTextToApi(String text) async {
-    final url = Uri.parse('https://rlaahrwhd.com/api');
+  Future<void> _sendTextToApi(String keyword, String text) async {
+    final url = Uri.parse('');
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
-      body: '{"text": "$text"}',
+      headers: {
+        'Content-Type': 'application/json',
+        'credentials': 'include',
+        'mode': 'cors',
+      },
+      body: '{"keyword": "$keyword", "productionInformation": "$text"}',
     );
 
     if (response.statusCode == 200) {
@@ -74,6 +79,10 @@ class _MyHomePageState extends State<MyHomePage> {
         MaterialPageRoute(builder: (context) => const RecoPage()),
       );
     } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const RecoPage()),
+      );
       _showWarningDialog('API 요청에 실패했습니다.');
     }
   }
@@ -107,20 +116,36 @@ class _MyHomePageState extends State<MyHomePage> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: TextField(
+                controller: _keywordController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: '키워드 입력',
+                  floatingLabelBehavior:
+                      FloatingLabelBehavior.always, // labelText를 위로 이동
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
                 controller: _textController,
                 maxLines: 15, // 텍스트 입력 칸 높이 조절
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: '텍스트 입력',
+                  labelText: '제품 정보 입력',
+                  floatingLabelBehavior:
+                      FloatingLabelBehavior.always, // labelText를 위로 이동
                 ),
               ),
             ),
             ElevatedButton(
               onPressed: () {
-                if (_textController.text.isEmpty) {
+                if (_keywordController.text.isEmpty) {
+                  _showWarningDialog('키워드를 입력해주세요.');
+                } else if (_textController.text.isEmpty) {
                   _showWarningDialog('텍스트를 입력해주세요.');
                 } else {
-                  _sendTextToApi(_textController.text);
+                  _sendTextToApi(_keywordController.text, _textController.text);
                 }
               },
               style: ElevatedButton.styleFrom(
