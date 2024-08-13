@@ -116,7 +116,6 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _selectedIndex = index;
     });
-    // 각 인덱스에 따라 다른 페이지로 이동하도록 설정할 수 있습니다.
   }
 
   @override
