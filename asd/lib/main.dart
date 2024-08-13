@@ -37,14 +37,18 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _textController = TextEditingController();
+  final TextEditingController _minSubscribersController =
+      TextEditingController();
+  final TextEditingController _maxSubscribersController =
+      TextEditingController();
 
-  void _showWarningDialog() {
+  void _showWarningDialog(String message) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('경고'),
-          content: const Text('텍스트를 입력해주세요.'),
+          content: Text(message),
           actions: <Widget>[
             TextButton(
               child: const Text('확인'),
@@ -79,19 +83,50 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _minSubscribersController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: '최소 구독자 수',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  const Text('~'),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: _maxSubscribersController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: '최대 구독자 수',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
               child: TextField(
                 controller: _textController,
-                maxLines: 5, // 텍스트 입력 칸 높이 조절
+                maxLines: 15, // 텍스트 입력 칸 높이 조절
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: '텍스트 입력',
+                  labelText: '스타트업 아이템/서비스 내용',
                 ),
               ),
             ),
             ElevatedButton(
               onPressed: () {
-                if (_textController.text.isEmpty) {
-                  _showWarningDialog();
+                if (_minSubscribersController.text.isEmpty ||
+                    _maxSubscribersController.text.isEmpty) {
+                  _showWarningDialog('구독자 수를 입력해주세요.');
+                } else if (_textController.text.isEmpty) {
+                  _showWarningDialog('텍스트를 입력해주세요.');
                 } else {
                   Navigator.push(
                     context,
